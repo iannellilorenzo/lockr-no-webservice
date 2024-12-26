@@ -10,7 +10,7 @@ namespace lockr_no_webservice
     /// <summary>
     /// Represents a status in the system.
     /// </summary>
-    internal class Status
+    class Status
     {
         // Private attributes
         private int _id;
