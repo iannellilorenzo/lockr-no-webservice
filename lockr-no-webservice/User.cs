@@ -347,7 +347,7 @@ namespace lockr_no_webservice
             return buffer;
         }
 
-        /// <summary>Hashes a password using the Argon2 hashing scheme.</summary>
+        /// <summary>Hashes a password using the Argon2id hashing scheme.</summary>
         /// <param name="password">Plaintext password to be hashed</param>
         /// <param name="saltLength">Number of bytes used for length of salt</param>
         /// <param name="parallelism">Degree of parallelism (cores = value / 2)</param>
