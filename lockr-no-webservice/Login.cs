@@ -135,5 +135,14 @@ namespace lockr_no_webservice
             string hash = Convert.ToBase64String(argon2.GetBytes(16));
             return hash == storedPasswordHash;
         }
+
+        /// <summary>
+        /// Handles the click event of the register button.
+        /// </summary>
+        private void btnRegister_Click(object sender, EventArgs e)
+        {
+            Register registerForm = new Register();
+            registerForm.Show();
+        }
     }
 }
