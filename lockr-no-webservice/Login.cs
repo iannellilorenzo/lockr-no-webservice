@@ -142,6 +142,16 @@ namespace lockr_no_webservice
         private void btnRegister_Click(object sender, EventArgs e)
         {
             Register registerForm = new Register();
+            registerForm.FormClosed += (s, args) =>
+            {
+                if (registerForm.RegisteredUser != null)
+                {
+                    // Access the registered user object here
+                    User registeredUser = registerForm.RegisteredUser;
+                    MessageBox.Show($"Welcome, {registeredUser.Username}!", "Registration Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                this.Show();
+            };
             registerForm.Show();
         }
     }
