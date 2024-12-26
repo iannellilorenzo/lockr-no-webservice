@@ -279,38 +279,6 @@ namespace lockr_no_webservice
         }
 
         /// <summary>
-        /// Generates a cryptographically secure salt.
-        /// </summary>
-        /// <returns>A byte array for salt.</returns>
-        private byte[] GenerateSalt()
-        {
-            byte[] saltBytes = new byte[16];
-
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                rng.GetBytes(saltBytes);
-            }
-
-            return saltBytes;
-        }
-
-        /// <summary>
-        /// Hashes the given password using the Argon2id algorithm.
-        /// </summary>
-        /// <param name="password">The password to hash.</param>
-        /// <returns>The hashed password as a base64 string.</returns>
-        private string Argon2idHash(string password)
-        {
-            var argon2id = new Argon2id(Encoding.UTF8.GetBytes(password));
-            argon2id.Salt = GenerateSalt();
-            argon2id.DegreeOfParallelism = 8; // Four cores
-            argon2id.MemorySize = 1024 * 1024; // 1 GB
-            argon2id.Iterations = 4;
-
-            return Convert.ToBase64String(argon2id.GetBytes(16));
-        }
-
-        /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns>A string that represents the current object.</returns>
@@ -362,6 +330,83 @@ namespace lockr_no_webservice
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        /// <summary>Generates salt for hashing passwords.</summary>
+        /// <param name="length">Number of bytes used for length of salt</param>
+        /// <returns>Salt for password</returns>
+        public static byte[] GenerateSalt(int length = 16)
+        {
+            byte[] buffer = new byte[length];
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(buffer);
+            }
+
+            return buffer;
+        }
+
+        /// <summary>Hashes a password using the Argon2 hashing scheme.</summary>
+        /// <param name="password">Plaintext password to be hashed</param>
+        /// <param name="saltLength">Number of bytes used for length of salt</param>
+        /// <param name="parallelism">Degree of parallelism (cores = value / 2)</param>
+        /// <param name="iterations">Number of iterations</param>
+        /// <param name="memorySize">Memory size in KB</param>
+        /// <returns>Hashed password</returns>
+        public string Argon2idHash(string password, int saltLength = 16, int parallelism = 1, int iterations = 4, int memorySize = 65536)
+        {
+            byte[] salt = GenerateSalt(saltLength);
+
+            Argon2id argon2 = new Argon2id(Encoding.UTF8.GetBytes(password))
+            {
+                Salt = salt,
+                DegreeOfParallelism = parallelism,
+                Iterations = iterations,
+                MemorySize = memorySize
+            };
+
+            byte[] hashed = argon2.GetBytes(32);
+            string saltString = Convert.ToBase64String(salt);
+            string hashedString = Convert.ToBase64String(hashed);
+            return $"$argon2$sl={saltLength}$p={parallelism}$i={iterations}$m={memorySize}${saltString}${hashedString}";
+        }
+
+        /// <summary>Verifies a password with its hashed counterpart.</summary>
+        /// <param name="plaintext">Plaintext password</param>
+        public bool VerifyHash(string enteredPassword)
+        {
+            // Split the stored hash into parts
+            var parts = PasswordHash.Split('$');
+
+            // Extract the salt from the stored hash
+            string saltBase64 = parts[6];
+            byte[] salt = Convert.FromBase64String(saltBase64);
+
+            // Extract the stored hash bytes
+            string storedHashedBase64 = parts[7];
+            byte[] storedHashBytes = Convert.FromBase64String(storedHashedBase64);
+
+            // Extract the configuration parameters from the stored hash
+            int saltLength = int.Parse(parts[1].Split('=')[1]);
+            int parallelism = int.Parse(parts[2].Split('=')[1]);
+            int iterations = int.Parse(parts[3].Split('=')[1]);
+            int memorySize = int.Parse(parts[4].Split('=')[1]);
+
+            // Create the Argon2id instance with the same parameters and the entered password
+            Argon2id argon2 = new Argon2id(Encoding.UTF8.GetBytes(enteredPassword))
+            {
+                Salt = salt,
+                DegreeOfParallelism = parallelism,
+                Iterations = iterations,
+                MemorySize = memorySize
+            };
+
+            // Calculate the hash of the entered password
+            byte[] computedHash = argon2.GetBytes(storedHashBytes.Length);  // Use the same length as the stored hash
+
+            // Compare the computed hash with the stored hash using SequenceEqual
+            return computedHash.SequenceEqual(storedHashBytes);  // Returns true if the hashes are identical
         }
     }
 }
