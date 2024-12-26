@@ -13,6 +13,7 @@ namespace lockr_no_webservice
     public partial class Register : Form
     {
         private DatabaseHelper dbHelper;
+        public User RegisteredUser { get; private set; }
 
         public Register()
         {
@@ -131,20 +132,33 @@ namespace lockr_no_webservice
                 { "@CreatedAt", DateTime.Now },
                 { "@UpdatedAt", DateTime.Now },
                 { "@SecretKey", hashedSecretKey },
-                { "@StatusId", 1 }, // Assuming 1 is the default status ID
-                { "@RoleId", 1 } // Assuming 1 is the default role ID
+                { "@StatusId", 1 }, // 1 = Active
+                { "@RoleId", 2 } // 2 = Regular user
             };
 
             try
             {
                 dbHelper.ExecuteNonQuery(query, parameters);
                 MessageBox.Show("Registration successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            RegisteredUser = new User
+            {
+                Email = email,
+                Username = username,
+                FirstName = firstName,
+                LastName = lastName,
+                PhoneNumber = phoneNumber,
+                PasswordHash = hashedPassword,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                SecretKey = hashedSecretKey,
+                StatusId = 1
+            };
         }
     }
 }
