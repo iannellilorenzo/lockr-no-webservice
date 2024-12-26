@@ -161,6 +161,54 @@ namespace lockr_no_webservice
             set => _roleId = value;
         }
 
+        public User()
+        {
+            Email = "default@example.com";
+            Username = "defaultUser";
+            FirstName = "Default";
+            LastName = "User";
+            PasswordHash = "Default1@";
+            PhoneNumber = "+0000000000";
+            CreatedAt = DateTime.MinValue;
+            UpdatedAt = DateTime.MinValue;
+            SecretKey = "123456";
+            VerificationToken = "defaultToken";
+            StatusId = 0;
+            RoleId = 0;
+        }
+
+        public User(string email, string username, string firstName, string lastName, string passwordHash, string phoneNumber, DateTime createdAt, DateTime updatedAt, string secretKey, string verificationToken, int statusId, int roleId)
+        {
+            Email = email;
+            Username = username;
+            FirstName = firstName;
+            LastName = lastName;
+            PasswordHash = passwordHash;
+            PhoneNumber = phoneNumber;
+            CreatedAt = createdAt;
+            UpdatedAt = updatedAt;
+            SecretKey = secretKey;
+            VerificationToken = verificationToken;
+            StatusId = statusId;
+            RoleId = roleId;
+        }
+
+        public User(User user)
+        {
+            Email = user.Email;
+            Username = user.Username;
+            FirstName = user.FirstName;
+            LastName = user.LastName;
+            PasswordHash = user.PasswordHash;
+            PhoneNumber = user.PhoneNumber;
+            CreatedAt = user.CreatedAt;
+            UpdatedAt = user.UpdatedAt;
+            SecretKey = user.SecretKey;
+            VerificationToken = user.VerificationToken;
+            StatusId = user.StatusId;
+            RoleId = user.RoleId;
+        }
+
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>

@@ -41,6 +41,24 @@ namespace lockr_no_webservice
             }
         }
 
+        public Role()
+        {
+            Id = 2;
+            RoleName = "user";
+        }
+
+        public Role(int id, string roleName)
+        {
+            Id = id;
+            RoleName = roleName;
+        }
+
+        public Role(Role role)
+        {
+            Id = role.Id;
+            RoleName = role.RoleName;
+        }
+
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>

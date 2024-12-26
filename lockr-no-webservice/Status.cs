@@ -39,6 +39,24 @@ namespace lockr_no_webservice
             }
         }
 
+        public Status()
+        {
+            Id = 2;
+            StatusName = "inactive";
+        }
+
+        public Status(int id, string statusName)
+        {
+            Id = id;
+            StatusName = statusName;
+        }
+
+        public Status(Status status)
+        {
+            Id = status.Id;
+            StatusName = status.StatusName;
+        }
+
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>

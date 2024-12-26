@@ -105,6 +105,41 @@ namespace lockr_no_webservice
             set => _updatedAt = value;
         }
 
+        public Account()
+        {
+            Id = 0;
+            AccountName = "defaultAccount";
+            Email = "default@example.com";
+            PasswordHash = "Default1@";
+            PhoneNumber = "+0000000000";
+            CreatedAt = DateTime.MinValue;
+            UpdatedAt = DateTime.MinValue;
+        }
+
+        public Account(int id, string accountName, string email, string passwordHash, string phoneNumber, DateTime createdAt, DateTime updatedAt)
+        {
+            Id = id;
+            AccountName = accountName;
+            Email = email;
+            PasswordHash = passwordHash;
+            PhoneNumber = phoneNumber;
+            CreatedAt = createdAt;
+            UpdatedAt = updatedAt;
+        }
+
+        public Account(Account account)
+        {
+            Id = account.Id;
+            AccountName = account.AccountName;
+            Email = account.Email;
+            PasswordHash = account.PasswordHash;
+            PhoneNumber = account.PhoneNumber;
+            CreatedAt = account.CreatedAt;
+            UpdatedAt = account.UpdatedAt;
+        }
+
+
+
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
