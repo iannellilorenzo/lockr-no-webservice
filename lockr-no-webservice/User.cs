@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
@@ -16,16 +18,16 @@ namespace lockr_no_webservice
     public class User
     {
         // Private attributes
-        private string _email;
-        private string _username;
-        private string _firstName;
-        private string _lastName;
-        private string _passwordHash;
-        private string _phoneNumber;
-        private DateTime _createdAt;
-        private DateTime _updatedAt;
-        private string _secretKey;
-        private string _verificationToken;
+        private string _email = "default@example.com";
+        private string _username = "defaultUser";
+        private string? _firstName;
+        private string? _lastName;
+        private string _passwordHash = "default1@";
+        private string _phoneNumber = "123456789";
+        private DateTime _createdAt = DateTime.MinValue;
+        private DateTime _updatedAt = DateTime.MinValue;
+        private string _secretKey = "123456";
+        private string? _verificationToken;
         private int _statusId;
         private int _roleId;
 
@@ -71,7 +73,7 @@ namespace lockr_no_webservice
         /// <summary>
         /// Gets or sets the first name of the user.
         /// </summary>
-        public string FirstName
+        public string? FirstName
         {
             get => _firstName;
             set
@@ -90,7 +92,7 @@ namespace lockr_no_webservice
         /// <summary>
         /// Gets or sets the last name of the user.
         /// </summary>
-        public string LastName
+        public string? LastName
         {
             get => _lastName;
             set
@@ -184,10 +186,20 @@ namespace lockr_no_webservice
         /// <summary>
         /// Gets or sets the verification token of the user.
         /// </summary>
-        public string VerificationToken
+        public string? VerificationToken
         {
             get => _verificationToken;
-            set => _verificationToken = Argon2idHash(value);
+            set
+            {
+                if (value != null)
+                {
+                    _verificationToken = Argon2idHash(value);
+                }
+                else
+                {
+                    _verificationToken = null;
+                }
+            }
         }
 
         /// <summary>

@@ -8,7 +8,9 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>lockr_no_webservice</RootNamespace>
     <AssemblyName>lockr-no-webservice</AssemblyName>
-    <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>4.8</TargetFrameworkVersion>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
