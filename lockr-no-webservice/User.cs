@@ -8,7 +8,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Konscious.Security.Cryptography;
+using MySql.Data.MySqlClient;
 
 namespace lockr_no_webservice
 {
@@ -385,11 +387,12 @@ namespace lockr_no_webservice
         }
 
         /// <summary>Verifies a password with its hashed counterpart.</summary>
-        /// <param name="plaintext">Plaintext password</param>
-        public bool VerifyHash(string enteredPassword)
+        /// <param name="plainPassword">Plaintext password</param>
+        /// <param name="storedHash">Hashed password from DB</param>
+        public bool VerifyHash(string storedHash, string plainPassword)
         {
             // Split the stored hash into parts
-            var parts = PasswordHash.Split('$');
+            var parts = storedHash.Split('$');
 
             // Extract the salt from the stored hash
             string saltBase64 = parts[6];
@@ -400,13 +403,13 @@ namespace lockr_no_webservice
             byte[] storedHashBytes = Convert.FromBase64String(storedHashedBase64);
 
             // Extract the configuration parameters from the stored hash
-            int saltLength = int.Parse(parts[1].Split('=')[1]);
-            int parallelism = int.Parse(parts[2].Split('=')[1]);
-            int iterations = int.Parse(parts[3].Split('=')[1]);
-            int memorySize = int.Parse(parts[4].Split('=')[1]);
+            int saltLength = int.Parse(parts[2].Split('=')[1]);
+            int parallelism = int.Parse(parts[3].Split('=')[1]);
+            int iterations = int.Parse(parts[4].Split('=')[1]);
+            int memorySize = int.Parse(parts[5].Split('=')[1]);
 
             // Create the Argon2id instance with the same parameters and the entered password
-            Argon2id argon2 = new Argon2id(Encoding.UTF8.GetBytes(enteredPassword))
+            Argon2id argon2 = new Argon2id(Encoding.UTF8.GetBytes(plainPassword))
             {
                 Salt = salt,
                 DegreeOfParallelism = parallelism,
@@ -419,6 +422,50 @@ namespace lockr_no_webservice
 
             // Compare the computed hash with the stored hash using SequenceEqual
             return computedHash.SequenceEqual(storedHashBytes);  // Returns true if the hashes are identical
+        }
+
+        /// <summary>
+        /// Verifies the user's credentials by querying the database.
+        /// </summary>
+        /// <param name="password">The password entered by the user.</param>
+        /// <returns>True if the credentials are valid, otherwise false.</returns>
+        public bool VerifyCredentials(string password)
+        {
+            string query = "SELECT * FROM users WHERE username = @Username";
+            Dictionary<string, object> parameters = new Dictionary<string, object>
+            {
+                { "@Username", Username }
+            };
+
+            using (DatabaseHelper dbHelper = new DatabaseHelper())
+            {
+                using (MySqlDataReader reader = dbHelper.ExecuteQuery(query, parameters))
+                {
+                    if (reader.Read())
+                    {
+                        string storedPasswordHash = reader["password_hash"].ToString();
+                        if (VerifyHash(storedPasswordHash, password))
+                        {
+                            // Populate the user instance with data from the database
+                            this.Email = reader["email"].ToString();
+                            this.Username = reader["username"].ToString();
+                            this.FirstName = reader["first_name"].ToString();
+                            this.LastName = reader["last_name"].ToString();
+                            // this.PasswordHash = password; Doing so would generate a new hash. If password is needed, add a regex to let an hash password be setted.
+                            this.PhoneNumber = reader["phone_number"].ToString();
+                            this.CreatedAt = Convert.ToDateTime(reader["created_at"]);
+                            this.UpdatedAt = Convert.ToDateTime(reader["updated_at"]);
+                            this.SecretKey = reader["secret_key"].ToString();
+                            this.VerificationToken = reader["verification_token"].ToString();
+                            this.StatusId = Convert.ToInt32(reader["status_id"]);
+                            this.RoleId = Convert.ToInt32(reader["role_id"]);
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
