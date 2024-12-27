@@ -14,28 +14,33 @@ namespace lockr_no_webservice
     {
         // Private attributes
         private int _id;
-        private string _accountName;
+        private string _username;
         private string _email;
-        private string _passwordHash;
-        private string _phoneNumber;
-        private DateTime _createdAt;
-        private DateTime _updatedAt;
+        private string _password;
+        private string _description;
+        private string _userReference;
 
         // Properties with getter and setter
+        /// <summary>
+        /// Gets or sets the ID of the account.
+        /// </summary>
         public int Id
         {
             get => _id;
             set => _id = value;
         }
 
-        public string AccountName
+        /// <summary>
+        /// Gets or sets the username of the account.
+        /// </summary>
+        public string Username
         {
-            get => _accountName;
+            get => _username;
             set
             {
                 if (Regex.IsMatch(value, @"^[A-Za-z0-9_.-]{1,30}$"))
                 {
-                    _accountName = value;
+                    _username = value;
                 }
                 else
                 {
@@ -44,6 +49,9 @@ namespace lockr_no_webservice
             }
         }
 
+        /// <summary>
+        /// Gets or sets the email of the account.
+        /// </summary>
         public string Email
         {
             get => _email;
@@ -61,14 +69,17 @@ namespace lockr_no_webservice
             }
         }
 
-        public string PasswordHash
+        /// <summary>
+        /// Gets or sets the password of the account.
+        /// </summary>
+        public string Password
         {
-            get => _passwordHash;
+            get => _password;
             set
             {
                 if (Regex.IsMatch(value, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"))
                 {
-                    _passwordHash = value;
+                    _password = value;
                 }
                 else
                 {
@@ -77,68 +88,79 @@ namespace lockr_no_webservice
             }
         }
 
-        public string PhoneNumber
+        /// <summary>
+        /// Gets or sets the description of the account.
+        /// </summary>
+        public string Description
         {
-            get => _phoneNumber;
+            get => _description;
+            set => _description = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the user reference of the account.
+        /// </summary>
+        public string UserReference
+        {
+            get => _userReference;
             set
             {
-                if (Regex.IsMatch(value, @"^\+?(\d{1,3})?[-.\s]?(\(?\d{1,4}\)?)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$"))
+                try
                 {
-                    _phoneNumber = value;
+                    var mailAddress = new System.Net.Mail.MailAddress(value);
+                    _userReference = mailAddress.Address;
                 }
-                else
+                catch (FormatException)
                 {
-                    throw new ArgumentException("Invalid phone number format.");
+                    throw new ArgumentException("Invalid email format.");
                 }
             }
         }
 
-        public DateTime CreatedAt
-        {
-            get => _createdAt;
-            set => _createdAt = value;
-        }
-
-        public DateTime UpdatedAt
-        {
-            get => _updatedAt;
-            set => _updatedAt = value;
-        }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Account"/> class.
+        /// </summary>
         public Account()
         {
             Id = 0;
-            AccountName = "defaultAccount";
+            Username = "defaultAccount";
             Email = "default@example.com";
-            PasswordHash = "Default1@";
-            PhoneNumber = "+0000000000";
-            CreatedAt = DateTime.MinValue;
-            UpdatedAt = DateTime.MinValue;
+            Password = "Default1@";
+            Description = "Default description";
         }
 
-        public Account(int id, string accountName, string email, string passwordHash, string phoneNumber, DateTime createdAt, DateTime updatedAt)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Account"/> class with specified parameters.
+        /// </summary>
+        /// <param name="id">The ID of the account.</param>
+        /// <param name="username">The username of the account.</param>
+        /// <param name="email">The email of the account.</param>
+        /// <param name="password">The password of the account.</param>
+        /// <param name="description">The description of the account.</param>
+        /// <param name="userReference">The user reference of the account.</param>
+        public Account(int id, string username, string email, string password, string description, string userReference)
         {
             Id = id;
-            AccountName = accountName;
+            Username = username;
             Email = email;
-            PasswordHash = passwordHash;
-            PhoneNumber = phoneNumber;
-            CreatedAt = createdAt;
-            UpdatedAt = updatedAt;
+            Password = password;
+            Description = description;
+            UserReference = userReference;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Account"/> class by copying another account.
+        /// </summary>
+        /// <param name="account">The account to copy.</param>
         public Account(Account account)
         {
             Id = account.Id;
-            AccountName = account.AccountName;
+            Username = account.Username;
             Email = account.Email;
-            PasswordHash = account.PasswordHash;
-            PhoneNumber = account.PhoneNumber;
-            CreatedAt = account.CreatedAt;
-            UpdatedAt = account.UpdatedAt;
+            Password = account.Password;
+            Description = account.Description;
+            UserReference = account.UserReference;
         }
-
-
 
         /// <summary>
         /// Returns a string that represents the current object.
@@ -146,7 +168,7 @@ namespace lockr_no_webservice
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            return $"Account: {AccountName}, Email: {Email}, Phone: {PhoneNumber}, CreatedAt: {CreatedAt}, UpdatedAt: {UpdatedAt}";
+            return $"Account: {Username}, Email: {Email}, Description: {Description}, UserReference: {UserReference}";
         }
 
         /// <summary>
@@ -158,12 +180,11 @@ namespace lockr_no_webservice
             return new Account
             {
                 Id = this.Id,
-                AccountName = this.AccountName,
+                Username = this.Username,
                 Email = this.Email,
-                PasswordHash = this.PasswordHash,
-                PhoneNumber = this.PhoneNumber,
-                CreatedAt = this.CreatedAt,
-                UpdatedAt = this.UpdatedAt
+                Password = this.Password,
+                Description = this.Description,
+                UserReference = this.UserReference
             };
         }
 
@@ -181,12 +202,11 @@ namespace lockr_no_webservice
 
             Account account = (Account)obj;
             return Id == account.Id &&
-                   AccountName == account.AccountName &&
+                   Username == account.Username &&
                    Email == account.Email &&
-                   PasswordHash == account.PasswordHash &&
-                   PhoneNumber == account.PhoneNumber &&
-                   CreatedAt == account.CreatedAt &&
-                   UpdatedAt == account.UpdatedAt;
+                   Password == account.Password &&
+                   Description == account.Description &&
+                   UserReference == account.UserReference;
         }
 
         /// <summary>
