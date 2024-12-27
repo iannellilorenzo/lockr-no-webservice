@@ -180,9 +180,9 @@ namespace lockr_no_webservice
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void btnBackToLogin_Click(object sender, EventArgs e)
         {
-            this.Hide();
             Login loginForm = new Login();
             loginForm.Show();
+            this.Close();
         }
 
         /// <summary>

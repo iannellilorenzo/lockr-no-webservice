@@ -71,9 +71,9 @@ namespace lockr_no_webservice
             if (CurrentUser.VerifyCredentials(password))
             {
                 // If the credentials are valid, open the main form
-                this.Hide();
                 Home homeForm = new Home();
                 homeForm.Show();
+                this.Close();
             }
             else
             {
@@ -88,7 +88,6 @@ namespace lockr_no_webservice
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void btnRegister_Click(object sender, EventArgs e)
         {
-            this.Hide();
             Register registerForm = new Register();
             registerForm.FormClosed += (s, args) =>
             {
@@ -98,9 +97,10 @@ namespace lockr_no_webservice
                     User registeredUser = registerForm.RegisteredUser;
                     MessageBox.Show($"We are happy you chose Lockr as your password manager, {registeredUser.Username}!\nPlease log in to start using Lockr.", "Registration Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                this.Show();
+                Application.Run(new Login());
             };
             registerForm.Show();
+            this.Close();
         }
 
         /// <summary>
