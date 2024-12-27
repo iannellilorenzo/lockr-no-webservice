@@ -16,6 +16,7 @@ namespace lockr_no_webservice
     public partial class Login : Form
     {
         private DatabaseHelper dbHelper;
+        public User CurrentUser { get; private set; }
 
         public Login()
         {
@@ -28,12 +29,18 @@ namespace lockr_no_webservice
         /// </summary>
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            string email = txtEmail.Text;
+            string username = txtUsername.Text;
             string password = txtPassword.Text;
 
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(username))
             {
-                MessageBox.Show("Email cannot be empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Username cannot be empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[A-Za-z0-9_.-]{1,30}$"))
+            {
+                MessageBox.Show("Invalid username format. Username must be between 1 and 30 characters. Only lowercase and uppercase letters, digits and special characters (`-`, `_`, `.`) are accepted", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -43,18 +50,17 @@ namespace lockr_no_webservice
                 return;
             }
 
-            try
+            if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"))
             {
-                var mailAddress = new System.Net.Mail.MailAddress(email);
-                email = mailAddress.Address;
-            }
-            catch (FormatException)
-            {
-                MessageBox.Show("Invalid email format.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Invalid password format. Password must be between 8 and 32 characters. At least one lowercase letter, one uppercase letter and special character (`@`, `$`, `!`, `%`, `?`, `&`)", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
+            CurrentUser = new();
+            CurrentUser.Username = username;
+
             // Verify user credentials
-            if (IsValidUser(email, password))
+            if (CurrentUser.VerifyCredentials(password))
             {
                 // If the credentials are valid, open the main form
                 this.Hide();
@@ -63,77 +69,8 @@ namespace lockr_no_webservice
             }
             else
             {
-                MessageBox.Show("Invalid email or password.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Invalid username or password.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        /// <summary>
-        /// Verifies the user's credentials by querying the database.
-        /// </summary>
-        /// <param name="email">The email entered by the user.</param>
-        /// <param name="password">The password entered by the user.</param>
-        /// <returns>True if the credentials are valid, otherwise false.</returns>
-        private bool IsValidUser(string email, string password)
-        {
-            string query = "SELECT * FROM users WHERE email = @Email";
-            var parameters = new Dictionary<string, object>
-            {
-                { "@Email", email }
-            };
-
-            using (MySqlDataReader reader = dbHelper.ExecuteQuery(query, parameters))
-            {
-                if (reader.Read())
-                {
-                    // Assuming you have a method to verify the hashed password
-                    string storedPasswordHash = reader["PasswordHash"].ToString();
-                    string salt = reader["Salt"].ToString();
-
-                    if (VerifyHash(password, storedPasswordHash, salt))
-                    {
-                        // Construct the user object from the query result
-                        User user = new User
-                        {
-                            Email = reader["Email"].ToString(),
-                            Username = reader["Username"].ToString(),
-                            FirstName = reader["FirstName"].ToString(),
-                            LastName = reader["LastName"].ToString(),
-                            PasswordHash = storedPasswordHash,
-                            PhoneNumber = reader["PhoneNumber"].ToString(),
-                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
-                            UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"]),
-                            SecretKey = reader["SecretKey"].ToString(),
-                            VerificationToken = reader["VerificationToken"].ToString(),
-                            StatusId = Convert.ToInt32(reader["StatusId"]),
-                            RoleId = Convert.ToInt32(reader["RoleId"])
-                        };
-
-                        // Store the user object as needed
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Verifies the hashed password.
-        /// </summary>
-        /// <param name="password">The plain text password.</param>
-        /// <param name="storedPasswordHash">The stored hashed password.</param>
-        /// <param name="salt">The salt used for hashing.</param>
-        /// <returns>True if the password is correct, otherwise false.</returns>
-        private bool VerifyHash(string password, string storedPasswordHash, string salt)
-        {
-            var argon2 = new Konscious.Security.Cryptography.Argon2id(System.Text.Encoding.UTF8.GetBytes(password));
-            argon2.Salt = Convert.FromBase64String(salt);
-            argon2.DegreeOfParallelism = 8; // four cores
-            argon2.MemorySize = 1024 * 1024; // 1 GB
-            argon2.Iterations = 4;
-
-            string hash = Convert.ToBase64String(argon2.GetBytes(16));
-            return hash == storedPasswordHash;
         }
 
         /// <summary>
@@ -141,6 +78,7 @@ namespace lockr_no_webservice
         /// </summary>
         private void btnRegister_Click(object sender, EventArgs e)
         {
+            this.Hide();
             Register registerForm = new Register();
             registerForm.FormClosed += (s, args) =>
             {
@@ -148,7 +86,7 @@ namespace lockr_no_webservice
                 {
                     // Access the registered user object here
                     User registeredUser = registerForm.RegisteredUser;
-                    MessageBox.Show($"Welcome, {registeredUser.Username}!", "Registration Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"We are happy you chose Lockr as your password manager, {registeredUser.Username}!\nPlease log in to start using Lockr.", "Registration Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 this.Show();
             };
