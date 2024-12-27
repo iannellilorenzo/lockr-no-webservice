@@ -32,9 +32,9 @@ namespace lockr_no_webservice
             string username = txtUsername.Text;
             string password = txtPassword.Text;
             string confirmPassword = txtConfirmPassword.Text;
-            string phoneNumber = txtPhoneNumber.Text;
             string firstName = txtFirstName.Text;
             string lastName = txtLastName.Text;
+            string phoneNumber = txtPhoneNumber.Text;
             string secretKey = txtSecretKey.Text;
 
             if (string.IsNullOrWhiteSpace(email))
@@ -114,10 +114,20 @@ namespace lockr_no_webservice
                 return;
             }
 
-            // Hash the password and generate salt
-            var user = new User();
-            string hashedPassword = user.Argon2idHash(password);
-            string hashedSecretKey = user.Argon2idHash(secretKey);
+            RegisteredUser = new User
+            {
+                Email = email,
+                Username = username,
+                FirstName = firstName,
+                LastName = lastName,
+                PhoneNumber = phoneNumber,
+                PasswordHash = password,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                SecretKey = secretKey,
+                StatusId = 1,
+                RoleId = 2
+            };
 
             // Insert the new user into the database
             string query = "INSERT INTO users (email, username, first_name, last_name, phone_number, password_hash, created_at, updated_at, secret_key, status_id, role_id) VALUES (@Email, @Username, @FirstName, @LastName, @PhoneNumber, @PasswordHash, @CreatedAt, @UpdatedAt, @SecretKey, @StatusId, @RoleId)";
@@ -128,10 +138,10 @@ namespace lockr_no_webservice
                 { "@FirstName", firstName },
                 { "@LastName", lastName },
                 { "@PhoneNumber", phoneNumber },
-                { "@PasswordHash", hashedPassword },
+                { "@PasswordHash", RegisteredUser.PasswordHash },
                 { "@CreatedAt", DateTime.Now },
                 { "@UpdatedAt", DateTime.Now },
-                { "@SecretKey", hashedSecretKey },
+                { "@SecretKey", RegisteredUser.SecretKey },
                 { "@StatusId", 1 }, // 1 = Active
                 { "@RoleId", 2 } // 2 = Regular user
             };
@@ -145,20 +155,13 @@ namespace lockr_no_webservice
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
 
-            RegisteredUser = new User
-            {
-                Email = email,
-                Username = username,
-                FirstName = firstName,
-                LastName = lastName,
-                PhoneNumber = phoneNumber,
-                PasswordHash = hashedPassword,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-                SecretKey = hashedSecretKey,
-                StatusId = 1
-            };
+        private void btnBackToLogin_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            Login loginForm = new Login();
+            loginForm.Show();
         }
     }
 }
