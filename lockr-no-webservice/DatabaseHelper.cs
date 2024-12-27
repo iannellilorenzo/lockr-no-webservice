@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace lockr_no_webservice
 {
-    public class DatabaseHelper
+    public class DatabaseHelper : IDisposable
     {
         private string connectionString = "Server=localhost;Database=account_manager;User=root;Password=;";
 
@@ -44,6 +44,11 @@ namespace lockr_no_webservice
                 }
                 return command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
             }
+        }
+
+        public void Dispose()
+        {
+            // Nothing to dispose
         }
     }
 }
