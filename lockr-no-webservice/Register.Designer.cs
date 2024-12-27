@@ -47,6 +47,9 @@
             this.label9 = new System.Windows.Forms.Label();
             this.btnRegister = new System.Windows.Forms.Button();
             this.btnBackToLogin = new System.Windows.Forms.Button();
+            this.linklblShowHidePassword = new System.Windows.Forms.LinkLabel();
+            this.linklblShowHideConfirmPassword = new System.Windows.Forms.LinkLabel();
+            this.linklblShowHideSecretKey = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // txtEmail
@@ -60,7 +63,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 20);
+            this.label1.Location = new System.Drawing.Point(13, 23);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(145, 16);
             this.label1.TabIndex = 9;
@@ -69,7 +72,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(300, 20);
+            this.label2.Location = new System.Drawing.Point(300, 23);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(172, 16);
             this.label2.TabIndex = 11;
@@ -86,7 +89,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(300, 94);
+            this.label3.Location = new System.Drawing.Point(300, 97);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(185, 16);
             this.label3.TabIndex = 15;
@@ -104,7 +107,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 94);
+            this.label4.Location = new System.Drawing.Point(13, 97);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(171, 16);
             this.label4.TabIndex = 13;
@@ -122,7 +125,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(300, 171);
+            this.label5.Location = new System.Drawing.Point(300, 174);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(170, 16);
             this.label5.TabIndex = 19;
@@ -139,7 +142,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(13, 171);
+            this.label6.Location = new System.Drawing.Point(13, 174);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(169, 16);
             this.label6.TabIndex = 17;
@@ -156,7 +159,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(300, 247);
+            this.label7.Location = new System.Drawing.Point(300, 250);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(174, 16);
             this.label7.TabIndex = 23;
@@ -169,11 +172,12 @@
             this.txtSecretKey.Name = "txtSecretKey";
             this.txtSecretKey.Size = new System.Drawing.Size(252, 22);
             this.txtSecretKey.TabIndex = 22;
+            this.txtSecretKey.UseSystemPasswordChar = true;
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(13, 247);
+            this.label8.Location = new System.Drawing.Point(13, 250);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(198, 16);
             this.label8.TabIndex = 21;
@@ -218,11 +222,50 @@
             this.btnBackToLogin.UseVisualStyleBackColor = true;
             this.btnBackToLogin.Click += new System.EventHandler(this.btnBackToLogin_Click);
             // 
+            // linklblShowHidePassword
+            // 
+            this.linklblShowHidePassword.AutoSize = true;
+            this.linklblShowHidePassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.linklblShowHidePassword.Location = new System.Drawing.Point(225, 97);
+            this.linklblShowHidePassword.Name = "linklblShowHidePassword";
+            this.linklblShowHidePassword.Size = new System.Drawing.Size(40, 16);
+            this.linklblShowHidePassword.TabIndex = 28;
+            this.linklblShowHidePassword.TabStop = true;
+            this.linklblShowHidePassword.Text = "Show";
+            this.linklblShowHidePassword.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linklblShowHidePassword_LinkClicked);
+            // 
+            // linklblShowHideConfirmPassword
+            // 
+            this.linklblShowHideConfirmPassword.AutoSize = true;
+            this.linklblShowHideConfirmPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.linklblShowHideConfirmPassword.Location = new System.Drawing.Point(512, 97);
+            this.linklblShowHideConfirmPassword.Name = "linklblShowHideConfirmPassword";
+            this.linklblShowHideConfirmPassword.Size = new System.Drawing.Size(40, 16);
+            this.linklblShowHideConfirmPassword.TabIndex = 29;
+            this.linklblShowHideConfirmPassword.TabStop = true;
+            this.linklblShowHideConfirmPassword.Text = "Show";
+            this.linklblShowHideConfirmPassword.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linklblShowHideConfirmPassword_LinkClicked);
+            // 
+            // linklblShowHideSecretKey
+            // 
+            this.linklblShowHideSecretKey.AutoSize = true;
+            this.linklblShowHideSecretKey.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.linklblShowHideSecretKey.Location = new System.Drawing.Point(512, 250);
+            this.linklblShowHideSecretKey.Name = "linklblShowHideSecretKey";
+            this.linklblShowHideSecretKey.Size = new System.Drawing.Size(40, 16);
+            this.linklblShowHideSecretKey.TabIndex = 30;
+            this.linklblShowHideSecretKey.TabStop = true;
+            this.linklblShowHideSecretKey.Text = "Show";
+            this.linklblShowHideSecretKey.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linklblShowHideSecretKey_LinkClicked);
+            // 
             // Register
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(565, 482);
+            this.Controls.Add(this.linklblShowHideSecretKey);
+            this.Controls.Add(this.linklblShowHideConfirmPassword);
+            this.Controls.Add(this.linklblShowHidePassword);
             this.Controls.Add(this.btnBackToLogin);
             this.Controls.Add(this.btnRegister);
             this.Controls.Add(this.label9);
@@ -273,5 +316,8 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button btnRegister;
         private System.Windows.Forms.Button btnBackToLogin;
+        private System.Windows.Forms.LinkLabel linklblShowHidePassword;
+        private System.Windows.Forms.LinkLabel linklblShowHideConfirmPassword;
+        private System.Windows.Forms.LinkLabel linklblShowHideSecretKey;
     }
 }

@@ -10,22 +10,38 @@ using System.Windows.Forms;
 
 namespace lockr_no_webservice
 {
+    /// <summary>
+    /// Represents the registration form.
+    /// </summary>
     public partial class Register : Form
     {
         private DatabaseHelper dbHelper;
         public User RegisteredUser { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Register"/> class.
+        /// </summary>
         public Register()
         {
             InitializeComponent();
             dbHelper = new DatabaseHelper();
         }
 
+        /// <summary>
+        /// Handles the Load event of the Register form.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void Register_Load(object sender, EventArgs e)
         {
 
         }
 
+        /// <summary>
+        /// Handles the Click event of the Register button.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void btnRegister_Click(object sender, EventArgs e)
         {
             string email = txtEmail.Text;
@@ -132,19 +148,19 @@ namespace lockr_no_webservice
             // Insert the new user into the database
             string query = "INSERT INTO users (email, username, first_name, last_name, phone_number, password_hash, created_at, updated_at, secret_key, status_id, role_id) VALUES (@Email, @Username, @FirstName, @LastName, @PhoneNumber, @PasswordHash, @CreatedAt, @UpdatedAt, @SecretKey, @StatusId, @RoleId)";
             var parameters = new Dictionary<string, object>
-            {
-                { "@Email", email },
-                { "@Username", username },
-                { "@FirstName", firstName },
-                { "@LastName", lastName },
-                { "@PhoneNumber", phoneNumber },
-                { "@PasswordHash", RegisteredUser.PasswordHash },
-                { "@CreatedAt", DateTime.Now },
-                { "@UpdatedAt", DateTime.Now },
-                { "@SecretKey", RegisteredUser.SecretKey },
-                { "@StatusId", 1 }, // 1 = Active
-                { "@RoleId", 2 } // 2 = Regular user
-            };
+                {
+                    { "@Email", email },
+                    { "@Username", username },
+                    { "@FirstName", firstName },
+                    { "@LastName", lastName },
+                    { "@PhoneNumber", phoneNumber },
+                    { "@PasswordHash", RegisteredUser.PasswordHash },
+                    { "@CreatedAt", DateTime.Now },
+                    { "@UpdatedAt", DateTime.Now },
+                    { "@SecretKey", RegisteredUser.SecretKey },
+                    { "@StatusId", 1 }, // 1 = Active
+                    { "@RoleId", 2 } // 2 = Regular user
+                };
 
             try
             {
@@ -157,11 +173,65 @@ namespace lockr_no_webservice
             }
         }
 
+        /// <summary>
+        /// Handles the Click event of the Back to Login button.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void btnBackToLogin_Click(object sender, EventArgs e)
         {
             this.Hide();
             Login loginForm = new Login();
             loginForm.Show();
+        }
+
+        /// <summary>
+        /// Shows or hides the info in the specified field.
+        /// </summary>
+        /// <param name="field">Field that will be hid or shown.</param>
+        /// <param name="showHide">LinkLabel to change text to.</param>
+        private void ShowHideInfo(TextBox field, LinkLabel showHide)
+        {
+            if (field.UseSystemPasswordChar)
+            {
+                field.UseSystemPasswordChar = false;
+                showHide.Text = "Hide";
+            }
+            else
+            {
+                field.UseSystemPasswordChar = true;
+                showHide.Text = "Show";
+            }
+        }
+
+        /// <summary>
+        /// Handles the LinkClicked event of the Show/Hide Password link label.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="LinkLabelLinkClickedEventArgs"/> instance containing the event data.</param>
+        private void linklblShowHidePassword_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            ShowHideInfo(txtPassword, linklblShowHidePassword);
+        }
+
+        /// <summary>
+        /// Handles the LinkClicked event of the Show/Hide Confirm Password link label.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="LinkLabelLinkClickedEventArgs"/> instance containing the event data.</param>
+        private void linklblShowHideConfirmPassword_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            ShowHideInfo(txtConfirmPassword, linklblShowHideConfirmPassword);
+        }
+
+        /// <summary>
+        /// Handles the LinkClicked event of the Show/Hide Secret Key link label.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="LinkLabelLinkClickedEventArgs"/> instance containing the event data.</param>
+        private void linklblShowHideSecretKey_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            ShowHideInfo(txtSecretKey, linklblShowHideSecretKey);
         }
     }
 }

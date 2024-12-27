@@ -13,11 +13,17 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace lockr_no_webservice
 {
+    /// <summary>
+    /// Represents the login form.
+    /// </summary>
     public partial class Login : Form
     {
         private DatabaseHelper dbHelper;
         public User CurrentUser { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Login"/> class.
+        /// </summary>
         public Login()
         {
             InitializeComponent();
@@ -27,6 +33,8 @@ namespace lockr_no_webservice
         /// <summary>
         /// Handles the click event of the login button.
         /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void btnLogin_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text;
@@ -76,6 +84,8 @@ namespace lockr_no_webservice
         /// <summary>
         /// Handles the click event of the register button.
         /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void btnRegister_Click(object sender, EventArgs e)
         {
             this.Hide();
@@ -91,6 +101,25 @@ namespace lockr_no_webservice
                 this.Show();
             };
             registerForm.Show();
+        }
+
+        /// <summary>
+        /// Handles the LinkClicked event of the Show/Hide Password link label.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="LinkLabelLinkClickedEventArgs"/> instance containing the event data.</param>
+        private void linklblShowHidePassword_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (txtPassword.UseSystemPasswordChar)
+            {
+                txtPassword.UseSystemPasswordChar = false;
+                linklblShowHidePassword.Text = "Hide";
+            }
+            else
+            {
+                txtPassword.UseSystemPasswordChar = true;
+                linklblShowHidePassword.Text = "Show";
+            }
         }
     }
 }

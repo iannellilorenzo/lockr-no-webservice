@@ -37,6 +37,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.btnRegister = new System.Windows.Forms.Button();
+            this.linklblShowHidePassword = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // txtUsername
@@ -106,7 +107,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(30, 103);
+            this.label3.Location = new System.Drawing.Point(31, 103);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(171, 16);
             this.label3.TabIndex = 7;
@@ -123,11 +124,24 @@
             this.btnRegister.UseVisualStyleBackColor = true;
             this.btnRegister.Click += new System.EventHandler(this.btnRegister_Click);
             // 
+            // linklblShowHidePassword
+            // 
+            this.linklblShowHidePassword.AutoSize = true;
+            this.linklblShowHidePassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.linklblShowHidePassword.Location = new System.Drawing.Point(258, 103);
+            this.linklblShowHidePassword.Name = "linklblShowHidePassword";
+            this.linklblShowHidePassword.Size = new System.Drawing.Size(40, 16);
+            this.linklblShowHidePassword.TabIndex = 30;
+            this.linklblShowHidePassword.TabStop = true;
+            this.linklblShowHidePassword.Text = "Show";
+            this.linklblShowHidePassword.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linklblShowHidePassword_LinkClicked);
+            // 
             // Login
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(523, 289);
+            this.Controls.Add(this.linklblShowHidePassword);
             this.Controls.Add(this.btnRegister);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -152,6 +166,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnRegister;
+        private System.Windows.Forms.LinkLabel linklblShowHidePassword;
     }
 
     #endregion
