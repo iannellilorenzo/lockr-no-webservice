@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+using System.Text.RegularExpressions;
 
 namespace lockr_no_webservice
 {
@@ -46,7 +47,7 @@ namespace lockr_no_webservice
                 return;
             }
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[A-Za-z0-9_.-]{1,30}$"))
+            if (!Regex.IsMatch(username, @"^[A-Za-z0-9_.-]{1,30}$"))
             {
                 MessageBox.Show("Invalid username format. Username must be between 1 and 30 characters. Only lowercase and uppercase letters, digits and special characters (`-`, `_`, `.`) are accepted", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -58,7 +59,7 @@ namespace lockr_no_webservice
                 return;
             }
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"))
+            if (!Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"))
             {
                 MessageBox.Show("Invalid password format. Password must be between 8 and 32 characters. At least one lowercase letter, one uppercase letter and special character (`@`, `$`, `!`, `%`, `?`, `&`)", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -73,7 +74,7 @@ namespace lockr_no_webservice
                 // If the credentials are valid, open the main form and pass the user instance
                 Home homeForm = new Home(CurrentUser);
                 homeForm.Show();
-                this.Close();
+                this.Hide();
             }
             else
             {

@@ -178,6 +178,10 @@ namespace lockr_no_webservice
                 {
                     _secretKey = Argon2idHash(value);
                 }
+                else if (Regex.IsMatch(value, @"^\$argon2\$sl=\d+\$p=\d+\$i=\d+\$m=\d+\$[A-Za-z0-9+/=]+\$[A-Za-z0-9+/=]+$"))
+                {
+                    _secretKey = value;
+                }
                 else
                 {
                     throw new ArgumentException("Invalid secret key format.");
@@ -193,9 +197,9 @@ namespace lockr_no_webservice
             get => _verificationToken;
             set
             {
-                if (value != null)
+                if (!String.IsNullOrEmpty(value))
                 {
-                    _verificationToken = Argon2idHash(value);
+                    _verificationToken = Argon2idHash(value!);
                 }
                 else
                 {

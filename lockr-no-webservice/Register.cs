@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace lockr_no_webservice
 {
@@ -76,7 +77,7 @@ namespace lockr_no_webservice
                 return;
             }
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[A-Za-z0-9_.-]{1,30}$"))
+            if (!Regex.IsMatch(username, @"^[A-Za-z0-9_.-]{1,30}$"))
             {
                 MessageBox.Show("Invalid username format. Username must be between 1 and 30 characters. Only lowercase and uppercase letters, digits and special characters (`-`, `_`, `.`) are accepted", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -88,7 +89,7 @@ namespace lockr_no_webservice
                 return;
             }
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"))
+            if (!Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"))
             {
                 MessageBox.Show("Invalid password format. Password must be between 8 and 32 characters. At least one lowercase letter, one uppercase letter and special character (`@`, `$`, `!`, `%`, `?`, `&`)", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -112,7 +113,7 @@ namespace lockr_no_webservice
                 return;
             }
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(phoneNumber, @"^\+?(\d{1,3})?[-.\s]?(\(?\d{1,4}\)?)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$"))
+            if (!Regex.IsMatch(phoneNumber, @"^\+?(\d{1,3})?[-.\s]?(\(?\d{1,4}\)?)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$"))
             {
                 MessageBox.Show("Invalid phone number format.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -124,7 +125,7 @@ namespace lockr_no_webservice
                 return;
             }
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(secretKey, @"^\d{6}$"))
+            if (!Regex.IsMatch(secretKey, @"^\d{6}$"))
             {
                 MessageBox.Show("Invalid secret key format. Secret key must be a 6-digits PIN.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;

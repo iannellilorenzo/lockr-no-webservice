@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Google.Protobuf.WellKnownTypes;
 using OpenSSL.Core;
 using OpenSSL.Crypto;
 
@@ -23,7 +24,6 @@ namespace lockr_no_webservice
         private string _password;
         private string _description;
         private string _userReference;
-        private string _secretKey;
 
         // Properties with getter and setter
         /// <summary>
@@ -82,9 +82,14 @@ namespace lockr_no_webservice
             get => _password;
             set
             {
-                if (Regex.IsMatch(value, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"))
+                // Regex to match the encrypted password format (Base64 string)
+                if (Regex.IsMatch(value, @"^[A-Za-z0-9+/=]{24,}$"))
                 {
-                    _password = Encrypt(value, SecretKey);
+                    _password = value;
+                }
+                else if (Regex.IsMatch(value, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"))
+                {
+                    _password = value;
                 }
                 else
                 {
@@ -123,25 +128,6 @@ namespace lockr_no_webservice
         }
 
         /// <summary>
-        /// Gets or sets the secret key of the account.
-        /// </summary>
-        public string SecretKey
-        {
-            get => _secretKey;
-            set
-            {
-                if (Regex.IsMatch(value, @"^\d{6}$"))
-                {
-                    _secretKey = value;
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid secret key format.");
-                }
-            }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Account"/> class.
         /// </summary>
         public Account()
@@ -149,10 +135,9 @@ namespace lockr_no_webservice
             Id = 0;
             Username = "defaultAccount";
             Email = "default@example.com";
-            Password = "Default1@";
+            Password = "VGhpcyBpcyBhIGxvbmcgc3RyaW5nIGZvciB0ZXN0aW5n"; // This is a default base64 encoded string "This is a long string for testing"
             Description = "Default description";
             UserReference = "default@example.com";
-            SecretKey = "000000";
         }
 
         /// <summary>
@@ -164,14 +149,22 @@ namespace lockr_no_webservice
         /// <param name="password">The password of the account.</param>
         /// <param name="description">The description of the account.</param>
         /// <param name="userReference">The user reference of the account.</param>
-        /// <param name="secretKey">The secret key of the account.</param>
+        /// <param name="secretKey">The secret key of the user.</param>
         public Account(int id, string username, string email, string password, string description, string userReference, string secretKey)
         {
             Id = id;
             Username = username;
             Email = email;
-            SecretKey = secretKey;
-            Password = password;
+
+            if (Regex.IsMatch(password, @"^[A-Za-z0-9+/=]{24,}$"))
+            {
+                Password = password;
+            }
+            else
+            {
+                Password = Encrypt(password, secretKey);
+            }
+
             Description = description;
             UserReference = userReference;
         }
@@ -188,7 +181,6 @@ namespace lockr_no_webservice
             Password = account.Password;
             Description = account.Description;
             UserReference = account.UserReference;
-            SecretKey = account.SecretKey;
         }
 
         /// <summary>
@@ -197,7 +189,7 @@ namespace lockr_no_webservice
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            return $"Account: {Username}, Email: {Email}, Description: {Description}, UserReference: {UserReference}, SecretKey: {SecretKey}";
+            return $"Account: {Username}, Email: {Email}, Description: {Description}, UserReference: {UserReference}";
         }
 
         /// <summary>
@@ -213,8 +205,7 @@ namespace lockr_no_webservice
                 Email = this.Email,
                 Password = this.Password,
                 Description = this.Description,
-                UserReference = this.UserReference,
-                SecretKey = this.SecretKey
+                UserReference = this.UserReference
             };
         }
 
@@ -236,8 +227,7 @@ namespace lockr_no_webservice
                    Email == account.Email &&
                    Password == account.Password &&
                    Description == account.Description &&
-                   UserReference == account.UserReference &&
-                   SecretKey == account.SecretKey;
+                   UserReference == account.UserReference;
         }
 
         /// <summary>

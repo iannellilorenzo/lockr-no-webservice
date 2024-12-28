@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace lockr_no_webservice
 {
-    using System;
-    using System.Text.RegularExpressions;
-
     /// <summary>
     /// Represents a role in the system.
     /// </summary>
