@@ -15,25 +15,31 @@ namespace lockr_no_webservice
     {
         private DatabaseHelper dbHelper;
         private List<Account> accounts;
+        private User currentUser;
 
-        public Home()
+        public Home(User user)
         {
             InitializeComponent();
             dbHelper = new DatabaseHelper();
+            currentUser = user;
             LoadAccounts();
         }
 
         private void LoadAccounts()
         {
-            string query = "SELECT * FROM accounts";
-            using (MySqlDataReader reader = dbHelper.ExecuteQuery(query, new Dictionary<string, object>()))
+            string query = "SELECT * FROM accounts WHERE user_reference = @UserReference";
+            var parameters = new Dictionary<string, object>
+            {
+                { "@UserReference", currentUser.Email }
+            };
+
+            using (MySqlDataReader reader = dbHelper.ExecuteQuery(query, parameters))
             {
                 accounts = new List<Account>();
                 while (reader.Read())
                 {
                     Account account = new Account
                     {
-                        Id = Convert.ToInt32(reader["id"]),
                         Username = reader["username"].ToString(),
                         Email = reader["email"].ToString(),
                         Password = reader["password"].ToString(),
@@ -54,18 +60,18 @@ namespace lockr_no_webservice
                 Email = txtEmail.Text,
                 Password = txtPassword.Text,
                 Description = txtDescription.Text,
-                UserReference = txtUserReference.Text
+                UserReference = currentUser.Email
             };
 
             string query = "INSERT INTO accounts (username, email, password, description, user_reference) VALUES (@Username, @Email, @Password, @Description, @UserReference)";
             var parameters = new Dictionary<string, object>
-                {
-                    { "@Username", account.Username },
-                    { "@Email", account.Email },
-                    { "@Password", account.Password },
-                    { "@Description", account.Description },
-                    { "@UserReference", account.UserReference }
-                };
+            {
+                { "@Username", account.Username },
+                { "@Email", account.Email },
+                { "@Password", account.Password },
+                { "@Description", account.Description },
+                { "@UserReference", account.UserReference }
+            };
 
             try
             {
@@ -90,7 +96,7 @@ namespace lockr_no_webservice
                 account.Email = txtEmail.Text;
                 account.Password = txtPassword.Text;
                 account.Description = txtDescription.Text;
-                account.UserReference = txtUserReference.Text;
+                account.UserReference = currentUser.Email;
 
                 string query = "UPDATE accounts SET username = @Username, email = @Email, password = @Password, description = @Description, user_reference = @UserReference WHERE id = @Id";
                 var parameters = new Dictionary<string, object>

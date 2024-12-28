@@ -64,14 +64,14 @@ namespace lockr_no_webservice
                 return;
             }
 
-            CurrentUser = new();
+            CurrentUser = new User();
             CurrentUser.Username = username;
 
             // Verify user credentials
             if (CurrentUser.VerifyCredentials(password))
             {
-                // If the credentials are valid, open the main form
-                Home homeForm = new Home();
+                // If the credentials are valid, open the main form and pass the user instance
+                Home homeForm = new Home(CurrentUser);
                 homeForm.Show();
                 this.Close();
             }

@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using OpenSSL.Core;
+using OpenSSL.Crypto;
 
 namespace lockr_no_webservice
 {
@@ -19,6 +23,7 @@ namespace lockr_no_webservice
         private string _password;
         private string _description;
         private string _userReference;
+        private string _secretKey;
 
         // Properties with getter and setter
         /// <summary>
@@ -79,7 +84,7 @@ namespace lockr_no_webservice
             {
                 if (Regex.IsMatch(value, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"))
                 {
-                    _password = value;
+                    _password = Encrypt(value, SecretKey);
                 }
                 else
                 {
@@ -118,6 +123,25 @@ namespace lockr_no_webservice
         }
 
         /// <summary>
+        /// Gets or sets the secret key of the account.
+        /// </summary>
+        public string SecretKey
+        {
+            get => _secretKey;
+            set
+            {
+                if (Regex.IsMatch(value, @"^\d{6}$"))
+                {
+                    _secretKey = value;
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid secret key format.");
+                }
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Account"/> class.
         /// </summary>
         public Account()
@@ -127,6 +151,8 @@ namespace lockr_no_webservice
             Email = "default@example.com";
             Password = "Default1@";
             Description = "Default description";
+            UserReference = "default@example.com";
+            SecretKey = "000000";
         }
 
         /// <summary>
@@ -138,11 +164,13 @@ namespace lockr_no_webservice
         /// <param name="password">The password of the account.</param>
         /// <param name="description">The description of the account.</param>
         /// <param name="userReference">The user reference of the account.</param>
-        public Account(int id, string username, string email, string password, string description, string userReference)
+        /// <param name="secretKey">The secret key of the account.</param>
+        public Account(int id, string username, string email, string password, string description, string userReference, string secretKey)
         {
             Id = id;
             Username = username;
             Email = email;
+            SecretKey = secretKey;
             Password = password;
             Description = description;
             UserReference = userReference;
@@ -160,6 +188,7 @@ namespace lockr_no_webservice
             Password = account.Password;
             Description = account.Description;
             UserReference = account.UserReference;
+            SecretKey = account.SecretKey;
         }
 
         /// <summary>
@@ -168,7 +197,7 @@ namespace lockr_no_webservice
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            return $"Account: {Username}, Email: {Email}, Description: {Description}, UserReference: {UserReference}";
+            return $"Account: {Username}, Email: {Email}, Description: {Description}, UserReference: {UserReference}, SecretKey: {SecretKey}";
         }
 
         /// <summary>
@@ -184,7 +213,8 @@ namespace lockr_no_webservice
                 Email = this.Email,
                 Password = this.Password,
                 Description = this.Description,
-                UserReference = this.UserReference
+                UserReference = this.UserReference,
+                SecretKey = this.SecretKey
             };
         }
 
@@ -206,7 +236,8 @@ namespace lockr_no_webservice
                    Email == account.Email &&
                    Password == account.Password &&
                    Description == account.Description &&
-                   UserReference == account.UserReference;
+                   UserReference == account.UserReference &&
+                   SecretKey == account.SecretKey;
         }
 
         /// <summary>
@@ -216,6 +247,118 @@ namespace lockr_no_webservice
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        /// <summary>
+        /// Derives a 256-bit AES key from a 6-digit secretKey using PBKDF2 with a random salt.
+        /// </summary>
+        /// <param name="secretKey">The 6-digit secretKey.</param>
+        /// <param name="salt">The generated random salt.</param>
+        /// <returns>A 32-byte AES key.</returns>
+        public static byte[] DeriveKeyFromPin(string secretKey, out byte[] salt)
+        {
+            salt = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+            using (var deriveBytes = new Rfc2898DeriveBytes(secretKey, salt, 10000))
+            {
+                return deriveBytes.GetBytes(32); // 32 bytes for AES-256
+            }
+        }
+
+        /// <summary>
+        /// Generates a random IV for AES encryption.
+        /// </summary>
+        /// <returns>A random 16-byte IV.</returns>
+        public static byte[] GenerateRandomIV()
+        {
+            using (Aes aes = Aes.Create())
+            {
+                aes.GenerateIV();
+                return aes.IV;
+            }
+        }
+
+        /// <summary>
+        /// Encrypts a plaintext string using AES with a random IV and a key derived from a 6-digit secretKey.
+        /// </summary>
+        /// <param name="plainText">The plaintext to encrypt.</param>
+        /// <param name="secretKey">The 6-digit secret key.</param>
+        /// <returns>The encrypted string, base64 encoded, with IV and salt prefixed.</returns>
+        public static string Encrypt(string plainText, string secretKey)
+        {
+            byte[] salt;
+            byte[] key = DeriveKeyFromPin(secretKey, out salt);
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = key;
+                aes.GenerateIV();
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+
+                byte[] iv = aes.IV;
+                using (ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        ms.Write(salt, 0, salt.Length); // Prefix salt to the encrypted data
+                        ms.Write(iv, 0, iv.Length);    // Prefix IV to the encrypted data
+                        using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                        {
+                            using (StreamWriter sw = new StreamWriter(cs))
+                            {
+                                sw.Write(plainText);
+                            }
+                            return Convert.ToBase64String(ms.ToArray());
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Decrypts an encrypted string using AES with IV and salt prefixed, and a key derived from a 6-digit secretKey.
+        /// </summary>
+        /// <param name="cipherText">The base64 encoded encrypted text.</param>
+        /// <param name="secretKey">The 6-digit secret key.</param>
+        /// <returns>The decrypted plaintext string.</returns>
+        public static string Decrypt(string cipherText, string secretKey)
+        {
+            byte[] buffer = Convert.FromBase64String(cipherText);
+            byte[] salt = new byte[16];
+            byte[] iv = new byte[16];
+            Array.Copy(buffer, 0, salt, 0, salt.Length);
+            Array.Copy(buffer, salt.Length, iv, 0, iv.Length);
+
+            byte[] key;
+            using (var deriveBytes = new Rfc2898DeriveBytes(secretKey, salt, 10000))
+            {
+                key = deriveBytes.GetBytes(32);
+            }
+
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = key;
+                aes.IV = iv;
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+
+                using (ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+                {
+                    using (MemoryStream ms = new MemoryStream(buffer, salt.Length + iv.Length, buffer.Length - (salt.Length + iv.Length)))
+                    {
+                        using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (StreamReader sr = new StreamReader(cs))
+                            {
+                                return sr.ReadToEnd();
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
