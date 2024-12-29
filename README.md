@@ -25,7 +25,7 @@ Lockr No Webservice is a Windows Forms application for managing user accounts an
 1. Clone the repository:
 
     ```sh
-    git clone https://github.com/yourusername/lockr-no-webservice.git
+    git clone https://github.com/iannellilorenzo/lockr-no-webservice.git
     cd lockr-no-webservice
     ```
 
