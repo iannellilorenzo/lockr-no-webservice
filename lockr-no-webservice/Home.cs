@@ -237,7 +237,7 @@ namespace lockr_no_webservice
 
                 if (!string.IsNullOrEmpty(txtPassword.Text))
                 {
-                    account.Password = txtPassword.Text;
+                    account.Password = Account.Encrypt(txtPassword.Text, plainSecretKey);
                 }
 
                 if (!string.IsNullOrEmpty(txtDescription.Text))
@@ -245,7 +245,6 @@ namespace lockr_no_webservice
                     account.Description = txtDescription.Text;
                 }
 
-                MessageBox.Show(account.Id.ToString());
                 string query = "UPDATE accounts SET username = @Username, email = @Email, password = @Password, description = @Description, user_reference = @UserReference WHERE id = @Id";
                 var parameters = new Dictionary<string, object>
                     {
