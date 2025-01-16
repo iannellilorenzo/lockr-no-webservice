@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management;
 using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
@@ -30,8 +31,8 @@ namespace lockr_no_webservice
         private DateTime _updatedAt = DateTime.MinValue;
         private string _secretKey = "123456";
         private string? _verificationToken;
-        private int _statusId;
-        private int _roleId;
+        private Status _status = new Status();
+        private Role _role = new Role();
 
         /// <summary>
         /// Gets or sets the email of the user.
@@ -209,21 +210,21 @@ namespace lockr_no_webservice
         }
 
         /// <summary>
-        /// Gets or sets the status ID of the user.
+        /// Gets or sets the status of the user.
         /// </summary>
-        public int StatusId
+        public Status Status
         {
-            get => _statusId;
-            set => _statusId = value;
+            get => _status;
+            set => _status = value;
         }
 
         /// <summary>
-        /// Gets or sets the role ID of the user.
+        /// Gets or sets the role of the user.
         /// </summary>
-        public int RoleId
+        public Role Role
         {
-            get => _roleId;
-            set => _roleId = value;
+            get => _role;
+            set => _role = value;
         }
 
         /// <summary>
@@ -241,8 +242,8 @@ namespace lockr_no_webservice
             UpdatedAt = DateTime.MinValue;
             SecretKey = "123456";
             VerificationToken = "defaultToken";
-            StatusId = 0;
-            RoleId = 0;
+            Status = new Status();
+            Role = new Role();
         }
 
         /// <summary>
@@ -258,9 +259,9 @@ namespace lockr_no_webservice
         /// <param name="updatedAt">The last update date of the user.</param>
         /// <param name="secretKey">The secret key of the user.</param>
         /// <param name="verificationToken">The verification token of the user.</param>
-        /// <param name="statusId">The status ID of the user.</param>
-        /// <param name="roleId">The role ID of the user.</param>
-        public User(string email, string username, string firstName, string lastName, string passwordHash, string phoneNumber, DateTime createdAt, DateTime updatedAt, string secretKey, string verificationToken, int statusId, int roleId)
+        /// <param name="Status">The status ID of the user.</param>
+        /// <param name="Role">The role ID of the user.</param>
+        public User(string email, string username, string firstName, string lastName, string passwordHash, string phoneNumber, DateTime createdAt, DateTime updatedAt, string secretKey, string verificationToken, Status status, Role role)
         {
             Email = email;
             Username = username;
@@ -272,8 +273,8 @@ namespace lockr_no_webservice
             UpdatedAt = updatedAt;
             SecretKey = secretKey;
             VerificationToken = verificationToken;
-            StatusId = statusId;
-            RoleId = roleId;
+            Status = status;
+            Role = role;
         }
 
         /// <summary>
@@ -292,8 +293,8 @@ namespace lockr_no_webservice
             UpdatedAt = user.UpdatedAt;
             SecretKey = user.SecretKey;
             VerificationToken = user.VerificationToken;
-            StatusId = user.StatusId;
-            RoleId = user.RoleId;
+            Status = user.Status;
+            Role = user.Role;
         }
 
         /// <summary>
@@ -337,8 +338,8 @@ namespace lockr_no_webservice
                    UpdatedAt == user.UpdatedAt &&
                    SecretKey == user.SecretKey &&
                    VerificationToken == user.VerificationToken &&
-                   StatusId == user.StatusId &&
-                   RoleId == user.RoleId;
+                   Status == user.Status &&
+                   Role == user.Role;
         }
 
         /// <summary>
@@ -461,8 +462,12 @@ namespace lockr_no_webservice
                             this.UpdatedAt = Convert.ToDateTime(reader["updated_at"]);
                             this.SecretKey = reader["secret_key"].ToString();
                             this.VerificationToken = reader["verification_token"].ToString();
-                            this.StatusId = Convert.ToInt32(reader["status_id"]);
-                            this.RoleId = Convert.ToInt32(reader["role_id"]);
+
+                            this.Status = new Status();
+                            this.Status.Id = Convert.ToInt32(reader["status_id"]);
+
+                            this.Role = new Role();
+                            this.Role.Id = Convert.ToInt32(reader["role_id"]);
                             return true;
                         }
                     }

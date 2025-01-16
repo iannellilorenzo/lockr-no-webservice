@@ -98,10 +98,10 @@ namespace lockr_no_webservice
                     User registeredUser = registerForm.RegisteredUser;
                     MessageBox.Show($"We are happy you chose Lockr as your password manager, {registeredUser.Username}!\nPlease log in to start using Lockr.", "Registration Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                Application.Run(new Login());
+                this.Show();
             };
             registerForm.Show();
-            this.Close();
+            this.Hide();
         }
 
         /// <summary>
@@ -121,6 +121,11 @@ namespace lockr_no_webservice
                 txtPassword.UseSystemPasswordChar = true;
                 linklblShowHidePassword.Text = "Show";
             }
+        }
+
+        private void Login_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
