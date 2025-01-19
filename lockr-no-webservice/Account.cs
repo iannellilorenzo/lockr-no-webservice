@@ -7,8 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
-using OpenSSL.Core;
-using OpenSSL.Crypto;
 
 namespace lockr_no_webservice
 {

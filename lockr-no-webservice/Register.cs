@@ -142,8 +142,8 @@ namespace lockr_no_webservice
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 SecretKey = secretKey,
-                StatusId = 1,
-                RoleId = 2
+                Status = new Status { Id = 1 },
+                Role = new Role { Id = 2 }
             };
 
             // Insert the new user into the database

@@ -81,7 +81,7 @@ namespace lockr_no_webservice
             get => _firstName;
             set
             {
-                if (Regex.IsMatch(value, @"^[A-Za-z' -]{1,35}$"))
+                if (Regex.IsMatch(value, @"^[A-Za-z' -]{1,35}$") || value == "")
                 {
                     _firstName = value;
                 }
@@ -100,7 +100,7 @@ namespace lockr_no_webservice
             get => _lastName;
             set
             {
-                if (Regex.IsMatch(value, @"^[A-Za-z' -]{1,35}$"))
+                if (Regex.IsMatch(value, @"^[A-Za-z' -]{1,35}$") || value == "")
                 {
                     _lastName = value;
                 }
