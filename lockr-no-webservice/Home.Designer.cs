@@ -1,4 +1,8 @@
-﻿namespace lockr_no_webservice
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace lockr_no_webservice
 {
     partial class Home
     {
@@ -218,7 +222,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1712, 394);
+            this.ClientSize = new System.Drawing.Size(1200, 600);
+            this.BackColor = System.Drawing.Color.White;
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.Controls.Add(this.btnShowPasswords);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.linklblShowHideSecretKey);
@@ -243,6 +250,91 @@
             this.ResumeLayout(false);
             this.PerformLayout();
 
+            // Left Panel for Inputs
+            var leftPanel = new Panel
+            {
+                Dock = DockStyle.Left,
+                Width = 400,
+                Padding = new Padding(20),
+                BackColor = System.Drawing.Color.White
+            };
+
+            // Style TextBoxes
+            System.Windows.Forms.TextBox[] textBoxes = { txtUsername, txtEmail, txtPassword, txtDescription, txtSecretKey };
+            foreach (var textBox in textBoxes)
+            {
+                textBox.Font = new Font("Segoe UI", 10F);
+                textBox.Size = new Size(320, 30);
+                textBox.BorderStyle = BorderStyle.FixedSingle;
+            }
+
+            // Style Labels
+            System.Windows.Forms.Label[] labels = { label1, label2, label3, label4, label5 };
+            foreach (var label in labels)
+            {
+                label.Font = new Font("Segoe UI", 9F);
+                label.ForeColor = Color.FromArgb(52, 73, 94);
+            }
+
+            // Position Controls
+            txtUsername.Location = new Point(40, 40);
+            txtEmail.Location = new Point(40, 100);
+            txtPassword.Location = new Point(40, 160);
+            txtDescription.Location = new Point(40, 220);
+            txtSecretKey.Location = new Point(40, 280);
+
+            label1.Location = new Point(40, 20);
+            label2.Location = new Point(40, 80);
+            label3.Location = new Point(40, 140);
+            label4.Location = new Point(40, 200);
+            label5.Location = new Point(40, 260);
+
+            // Style Buttons
+            Button[] buttons = { btnAddAccount, btnUpdateAccount, btnDeleteAccount, btnShowPasswords };
+            foreach (var button in buttons)
+            {
+                button.FlatStyle = FlatStyle.Flat;
+                button.Size = new Size(100, 35);
+                button.Font = new Font("Segoe UI", 9F);
+                button.BackColor = Color.FromArgb(52, 73, 94);
+                button.ForeColor = Color.White;
+            }
+
+            // Position Buttons
+            btnAddAccount.Location = new Point(40, 340);
+            btnUpdateAccount.Location = new Point(150, 340);
+            btnDeleteAccount.Location = new Point(260, 340);
+            btnShowPasswords.Location = new Point(40, 385);
+            btnShowPasswords.Size = new Size(320, 35);
+
+            // Style DataGridView
+            this.dgvAccounts.Location = new Point(420, 40);
+            this.dgvAccounts.Size = new Size(740, 500);
+            this.dgvAccounts.BackgroundColor = Color.White;
+            this.dgvAccounts.BorderStyle = BorderStyle.None;
+            this.dgvAccounts.GridColor = Color.FromArgb(52, 73, 94);
+            this.dgvAccounts.DefaultCellStyle.Font = new Font("Segoe UI", 9F);
+            this.dgvAccounts.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            this.dgvAccounts.EnableHeadersVisualStyles = false;
+            this.dgvAccounts.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(52, 73, 94);
+            this.dgvAccounts.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+
+            // Style Show/Hide Links
+            this.linklblShowHidePassword.Location = new Point(320, 165);
+            this.linklblShowHideSecretKey.Location = new Point(320, 285);
+            this.linklblShowHidePassword.LinkBehavior = LinkBehavior.NeverUnderline;
+            this.linklblShowHideSecretKey.LinkBehavior = LinkBehavior.NeverUnderline;
+            this.linklblShowHidePassword.LinkColor = Color.FromArgb(52, 73, 94);
+            this.linklblShowHideSecretKey.LinkColor = Color.FromArgb(52, 73, 94);
+
+            // Add all controls
+            this.Controls.AddRange(new Control[] {
+                dgvAccounts,
+                txtUsername, txtEmail, txtPassword, txtDescription, txtSecretKey,
+                label1, label2, label3, label4, label5,
+                linklblShowHidePassword, linklblShowHideSecretKey,
+                btnAddAccount, btnUpdateAccount, btnDeleteAccount, btnShowPasswords
+            });
         }
 
         private System.Windows.Forms.DataGridView dgvAccounts;

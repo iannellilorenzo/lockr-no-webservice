@@ -81,13 +81,52 @@ namespace lockr_no_webservice
         {
             using (var form = new Form())
             {
-                var label = new Label { Left = 50, Top = 20, Text = "Enter Secret Key:" };
-                var textBox = new TextBox { Left = 50, Top = 50, Width = 200, UseSystemPasswordChar = true };
-                var buttonOk = new Button { Text = "OK", Left = 150, Width = 100, Top = 80, DialogResult = DialogResult.OK };
+                // Form properties
+                form.Text = "Secret Key Required";
+                form.Size = new Size(400, 200);
+                form.StartPosition = FormStartPosition.CenterScreen;
+                form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                form.MaximizeBox = false;
+                form.MinimizeBox = false;
+                form.BackColor = Color.White;
+
+                // Label
+                var label = new Label
+                {
+                    Text = "Enter Secret Key:",
+                    Font = new Font("Segoe UI", 10F),
+                    ForeColor = Color.FromArgb(52, 73, 94),
+                    Location = new Point(40, 30),
+                    Size = new Size(320, 20)
+                };
+
+                // TextBox
+                var textBox = new TextBox
+                {
+                    Font = new Font("Segoe UI", 12F),
+                    Location = new Point(40, 60),
+                    Size = new Size(320, 30),
+                    UseSystemPasswordChar = true,
+                    BorderStyle = BorderStyle.FixedSingle
+                };
+
+                // Button
+                var buttonOk = new Button
+                {
+                    Text = "Confirm",
+                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                    Location = new Point(40, 110),
+                    Size = new Size(320, 40),
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.FromArgb(52, 73, 94),
+                    ForeColor = Color.White
+                };
+
                 buttonOk.Click += (sender, e) => { form.Close(); };
-                form.Controls.Add(label);
-                form.Controls.Add(textBox);
-                form.Controls.Add(buttonOk);
+                buttonOk.DialogResult = DialogResult.OK;
+
+                // Add controls
+                form.Controls.AddRange(new Control[] { label, textBox, buttonOk });
                 form.AcceptButton = buttonOk;
 
                 if (form.ShowDialog() == DialogResult.OK)
