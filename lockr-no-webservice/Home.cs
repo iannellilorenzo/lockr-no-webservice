@@ -16,7 +16,6 @@ namespace lockr_no_webservice
     public partial class Home : Form
     {
         private DatabaseHelper dbHelper;
-        private List<Account> accounts;
         private User currentUser;
         private string plainSecretKey;
 
@@ -29,7 +28,37 @@ namespace lockr_no_webservice
             dgvAccounts.AllowUserToAddRows = false; // Disable the addition of new rows by the user
             InitializeDataGridViewColumns();
             RequestSecretKey();
+            LoadWholeUserDetails();
             LoadAccounts();
+        }
+
+        private void LoadWholeUserDetails() {
+            string query = "SELECT * FROM users WHERE username = @Username";
+            var parameters = new Dictionary<string, object>
+            {
+                { "@Username", currentUser.Username }
+            };
+
+            using (MySqlDataReader reader = dbHelper.ExecuteQuery(query, parameters))
+            {
+                while (reader.Read())
+                {
+                    currentUser.Email = reader["email"].ToString();
+                    currentUser.FirstName = reader["first_name"].ToString();
+                    currentUser.LastName = reader["last_name"].ToString();
+                    currentUser.PhoneNumber = reader["phone_number"].ToString();
+                    currentUser.CreatedAt = Convert.ToDateTime(reader["created_at"]);
+                    currentUser.UpdatedAt = Convert.ToDateTime(reader["updated_at"]);
+                    currentUser.SecretKey = reader["secret_key"].ToString();
+                    currentUser.VerificationToken = reader["verification_token"].ToString();
+
+                    currentUser.Status = new Status();
+                    currentUser.Status.Id = Convert.ToInt32(reader["status_id"]);
+
+                    currentUser.Role = new Role();
+                    currentUser.Role.Id = Convert.ToInt32(reader["role_id"]);
+                }
+            }
         }
 
         /// <summary>
@@ -155,6 +184,9 @@ namespace lockr_no_webservice
         /// </summary>
         private void LoadAccounts()
         {
+            dgvAccounts.DataSource = null;
+            currentUser.Accounts.Clear();
+
             string query = "SELECT * FROM accounts WHERE user_reference = @UserReference";
             var parameters = new Dictionary<string, object>
                 {
@@ -163,7 +195,6 @@ namespace lockr_no_webservice
 
             using (MySqlDataReader reader = dbHelper.ExecuteQuery(query, parameters))
             {
-                accounts = new List<Account>();
                 while (reader.Read())
                 {
                     Account account = new Account(
@@ -175,12 +206,12 @@ namespace lockr_no_webservice
                         reader["user_reference"].ToString(),
                         plainSecretKey
                     );
-                    accounts.Add(account);
+                    currentUser.Accounts.Add(account);
                 }
             }
 
             // Bind the data to the existing columns
-            dgvAccounts.DataSource = new BindingList<Account>(accounts);
+            dgvAccounts.DataSource = new BindingList<Account>(currentUser.Accounts);
         }
 
         /// <summary>
@@ -262,7 +293,7 @@ namespace lockr_no_webservice
             if (dgvAccounts.SelectedRows.Count > 0)
             {
                 int selectedId = Convert.ToInt32(dgvAccounts.SelectedRows[0].Cells["Id"].Value);
-                Account account = accounts.First(a => a.Id == selectedId);
+                Account account = currentUser.Accounts.First(a => a.Id == selectedId);
 
                 if (!string.IsNullOrEmpty(txtUsername.Text))
                 {
@@ -370,7 +401,7 @@ namespace lockr_no_webservice
             if (dgvAccounts.SelectedRows.Count > 0)
             {
                 int selectedId = Convert.ToInt32(dgvAccounts.SelectedRows[0].Cells["Id"].Value);
-                Account account = accounts.First(a => a.Id == selectedId);
+                Account account = currentUser.Accounts.First(a => a.Id == selectedId);
 
                 txtUsername.Text = account.Username;
                 txtEmail.Text = account.Email;

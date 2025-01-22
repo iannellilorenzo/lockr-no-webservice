@@ -33,6 +33,7 @@ namespace lockr_no_webservice
         private string? _verificationToken;
         private Status _status = new Status();
         private Role _role = new Role();
+        private List<Account> _accounts = new List<Account>();
 
         /// <summary>
         /// Gets or sets the email of the user.
@@ -228,6 +229,15 @@ namespace lockr_no_webservice
         }
 
         /// <summary>
+        /// Gets or sets the accounts associated with the user.
+        /// </summary>
+        public List<Account> Accounts
+        {
+            get => _accounts;
+            set => _accounts = value;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="User"/> class.
         /// </summary>
         public User()
@@ -244,6 +254,7 @@ namespace lockr_no_webservice
             VerificationToken = "defaultToken";
             Status = new Status();
             Role = new Role();
+            Accounts = new List<Account>();
         }
 
         /// <summary>
@@ -261,7 +272,8 @@ namespace lockr_no_webservice
         /// <param name="verificationToken">The verification token of the user.</param>
         /// <param name="Status">The status ID of the user.</param>
         /// <param name="Role">The role ID of the user.</param>
-        public User(string email, string username, string firstName, string lastName, string passwordHash, string phoneNumber, DateTime createdAt, DateTime updatedAt, string secretKey, string verificationToken, Status status, Role role)
+        /// <param name="accounts">The accounts associated with the user.</param>
+        public User(string email, string username, string? firstName, string? lastName, string passwordHash, string phoneNumber, DateTime createdAt, DateTime updatedAt, string secretKey, string verificationToken, Status status, Role role, List<Account> accounts)
         {
             Email = email;
             Username = username;
@@ -275,6 +287,7 @@ namespace lockr_no_webservice
             VerificationToken = verificationToken;
             Status = status;
             Role = role;
+            Accounts = accounts;
         }
 
         /// <summary>
@@ -295,6 +308,7 @@ namespace lockr_no_webservice
             VerificationToken = user.VerificationToken;
             Status = user.Status;
             Role = user.Role;
+            Accounts = new List<Account>(user.Accounts);
         }
 
         /// <summary>
@@ -303,7 +317,7 @@ namespace lockr_no_webservice
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            return $"User: {Username}, Email: {Email}, Phone: {PhoneNumber}, CreatedAt: {CreatedAt}, UpdatedAt: {UpdatedAt}";
+            return $"User: {Username}, Email: {Email}, Phone: {PhoneNumber}, CreatedAt: {CreatedAt}, UpdatedAt: {UpdatedAt}, Accounts: {Accounts.Count}";
         }
 
         /// <summary>
@@ -338,8 +352,9 @@ namespace lockr_no_webservice
                    UpdatedAt == user.UpdatedAt &&
                    SecretKey == user.SecretKey &&
                    VerificationToken == user.VerificationToken &&
-                   Status == user.Status &&
-                   Role == user.Role;
+                   Status.Equals(user.Status) &&
+                   Role.Equals(user.Role) &&
+                   Accounts.SequenceEqual(user.Accounts);
         }
 
         /// <summary>
@@ -436,28 +451,34 @@ namespace lockr_no_webservice
         /// <returns>True if the credentials are valid, otherwise false.</returns>
         public bool VerifyCredentials(string password)
         {
-            string query = "SELECT * FROM users WHERE username = @Username";
+            string query = @"
+            SELECT u.*, a.id as account_id, a.username as account_username, 
+                a.email as account_email, a.password as account_password,
+                a.description as account_description, a.user_reference
+            FROM users u
+            LEFT JOIN accounts a ON u.email = a.user_reference
+            WHERE u.email = @Email";
+
             Dictionary<string, object> parameters = new Dictionary<string, object>
             {
-                { "@Username", Username }
+                { "@Email", Email }
             };
 
             using (DatabaseHelper dbHelper = new DatabaseHelper())
             {
                 using (MySqlDataReader reader = dbHelper.ExecuteQuery(query, parameters))
                 {
-                    if (reader.Read())
+                    bool isFirstRow = true;
+                    while (reader.Read())
                     {
-                        string storedPasswordHash = reader["password_hash"].ToString();
-                        if (VerifyHash(storedPasswordHash, password))
+                        if (isFirstRow)
                         {
-                            // Populate the user instance with data from the database
+                            // Populate user data only once
                             this.Email = reader["email"].ToString();
                             this.Username = reader["username"].ToString();
                             this.FirstName = reader["first_name"].ToString();
                             this.LastName = reader["last_name"].ToString();
-                            // this.PasswordHash = password; Doing so would generate a new hash. If password is needed, add a regex to let an hash password be setted.
-                            this.PhoneNumber = reader["phone_number"].ToString();
+                            // this.PhoneNumber = reader["phone_number"].ToString(); Doing so would generate a new hash. If password is needed, add a regex to let an hash password be setted.
                             this.CreatedAt = Convert.ToDateTime(reader["created_at"]);
                             this.UpdatedAt = Convert.ToDateTime(reader["updated_at"]);
                             this.SecretKey = reader["secret_key"].ToString();
@@ -468,13 +489,26 @@ namespace lockr_no_webservice
 
                             this.Role = new Role();
                             this.Role.Id = Convert.ToInt32(reader["role_id"]);
-                            return true;
+                            
+                            isFirstRow = false;
+                        }
+
+                        // Add account if exists
+                        if (reader["account_id"] != DBNull.Value)
+                        {
+                            Account account = new Account();
+                            account.Id = Convert.ToInt32(reader["account_id"]);
+                            account.Username = reader["account_username"].ToString();
+                            account.Email = reader["account_email"].ToString();
+                            account.Password = reader["account_password"].ToString();
+                            account.Description = reader["account_description"].ToString();
+                            account.UserReference = reader["user_reference"].ToString();
+                            Accounts.Add(account);
                         }
                     }
+                    return true;
                 }
             }
-
-            return false;
         }
     }
 }

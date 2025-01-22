@@ -167,6 +167,8 @@ namespace lockr_no_webservice
             {
                 dbHelper.ExecuteNonQuery(query, parameters);
                 MessageBox.Show("Registration successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                this.Close();
             }
             catch (Exception ex)
             {
